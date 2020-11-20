@@ -1,0 +1,438 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Vanilla JS - To Do List</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
+        integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+    <style>
+        #wrapper {
+            overflow-x: hidden;
+        }
+
+        #sidebar-wrapper {
+            min-height: 100vh;
+            margin-left: -15rem;
+            -webkit-transition: margin .25s ease-out;
+            -moz-transition: margin .25s ease-out;
+            -o-transition: margin .25s ease-out;
+            transition: margin .25s ease-out;
+        }
+
+        #sidebar-wrapper .sidebar-heading {
+            padding: 0.875rem 1.25rem;
+            font-size: 1.2rem;
+        }
+
+        #sidebar-wrapper .list-group {
+            width: 15rem;
+        }
+
+        #page-content-wrapper {
+            min-width: 100vw;
+        }
+
+        #wrapper.toggled #sidebar-wrapper {
+            margin-left: 0;
+        }
+
+        @media (min-width: 768px) {
+            #sidebar-wrapper {
+                margin-left: 0;
+            }
+
+            #page-content-wrapper {
+                min-width: 0;
+                width: 100%;
+            }
+
+            #wrapper.toggled #sidebar-wrapper {
+                margin-left: -15rem;
+            }
+        }
+
+
+        .form-style {
+            width: 500px;
+            padding: 30px;
+            background: #ffffff;
+            margin: 50px auto;
+        }
+
+        .form-style h2 {
+            background: #4d4d4d;
+            font-size: 18px;
+            padding: 20px;
+            color: white;
+        }
+
+        .form-style input[type='text'] {
+            box-sizing: border-box;
+            outline: none;
+            display: block;
+            width: 100%;
+            padding: 7px;
+            margin-bottom: 10px;
+        }
+
+        .form-style input[type='submit'] {
+            background-color: #2cbbbb;
+            border: 1px solid #27A0A0;
+            display: inline-block;
+            cursor: pointer;
+            color: #ffffff;
+            font-size: 14px;
+            padding: 8px 18px;
+            text-decoration: none;
+            text-transform: uppercase;
+        }
+
+        .user-submit {
+            width: 500px;
+            margin: 50px auto;
+            border: 1px solid;
+            text-align: center;
+            padding: 5px;
+            display: none;
+        }
+
+        .popup-wrapper {
+            background: rgba(0, 0, 0, .2);
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+        }
+
+        .popup {
+            text-align: center;
+            width: 100%;
+            max-width: 300px;
+            margin: 10% auto;
+            padding: 20px;
+            background: white;
+            position: relative;
+        }
+
+        .popup-close {
+            position: absolute;
+            top: 5px;
+            right: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="d-flex" id="wrapper">
+        <div class="" id="page-content-wrapper">
+            <!-- NavBar -->
+            <nav class="navbar navbar-expand navbar-light bg-light border-bottom">
+                <nav class="navbar-brand mr-5 text-center">To Do - Serverless</nav>
+                <!-- Nav Search -->
+                <form class="d-none d-md-inline-block form-inline ml-auto mr-0 mr-md-3 my-2 my-md-0 float-right">
+                    <div class="input-group">
+                        <input type="text" class="form-control" placeholder="Search Details..." id='search-box'>
+                        <div class="input-group-append">
+                            <button class="btn btn-primary">Go</button>
+                        </div>
+                    </div>
+                </form>
+
+                <div class="collapse navbar-collapse">
+                    <ul class="navbar-nav ml-auto mt-2 mt-lg-0">
+                        <li class="nav-item active">
+                            <a href="#" class="nav-link">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#" class="nav-link">Profile</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#" class="nav-link">Sign Up</a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <div class="container-fluid">
+                <h1 class="mt-4">Simple Card ToDos</h1>
+                <div class="row">
+                    <div class="col-auto mb-2">
+                        <div class="btn-group">
+                            <button class="btn btn-primary" id="addTask">Add</button>
+                            <button class="btn btn-primary dropdown-toggle">Sort</button>
+                            <div class="dropdown-menu">
+                                <a href="#" class="dropdown-item">By Date</a>
+                                <a href="#" class="dropdown-item">A - Z</a>
+                                <a href="#" class="dropdown-item">Z - A</a>
+                            </div>
+                            <!-- TODO make this a dropdown -->
+                        </div>
+                    </div>
+                </div>
+                <div class="row" id="todoContainer">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="popup-wrapper">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add a New Task</h5>
+                    <button type="button" class="close modal-close" aria-label="Close">
+                        <span aria-hidden="true">&times;</span></button>
+                </div>
+                <div class="modal-body">
+                    <div class="message bg-success text-white p-2 mb-2 d-none"></div>
+                    <form action="" class="new-task" name='new-task'>
+                        <div class="form-group">
+                            <label for="taskTitle">Task Title</label>
+                            <input type="text" class="form-control" name="taskTitle" id="taskTitle"
+                                placeholder="Add Title" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="taskDetails">Details</label>
+                            <textarea class="form-control" id="taskDetails" rows="3" name="taskDetails"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="taskDue">Due Date</label>
+                            <input type="date" class="form-control" name="taskDue" id="taskDue"
+                                placeholder="Add Due Date">
+                        </div>
+                        <div class="form-group">
+                            <label for="priority">Priority</label>
+                            <select class="form-control" id="priority" name="priority">
+                                <option>Low</option>
+                                <option>Medium</option>
+                                <option>High</option>
+                            </select>
+                        </div>
+                        <input type="submit" value="submit" class="btn btn-primary btn-outline-dark text-light">
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+<script>
+    // Creating a Card Factory
+
+    const todoContainer = document.querySelector("#todoContainer");
+    const basicTasks = [
+        {
+            taskTitle: "Learn to Dance",
+            taskDetails: "Schedule a dance lesson",
+            taskDue: "7/27/2020",
+            taskCreated: "7/20/2020",
+            completed: "no",
+            priority: "low",
+        },
+        {
+            taskTitle: "Make Dinner",
+            taskDetails: "Gather all of the ingredients for dinner",
+            taskDue: "7/31/2020",
+            taskCreated: "7/20/2020",
+            completed: "no",
+            priority: "low",
+        },
+        {
+            taskTitle: "Work",
+            taskDetails: "Update Calendar",
+            taskDue: "7/31/2020",
+            taskCreated: "7/20/2020",
+            completed: "no",
+            priority: "medium",
+        },
+        {
+            taskTitle: "Call a Friend",
+            taskDetails: "Call John Smith",
+            taskDue: "7/31/2020",
+            taskCreated: "7/20/2020",
+            completed: "no",
+            priority: "high",
+        },
+    ];
+
+    // Setting up a object to handle the creation of the cards
+    const cardFactory = {
+        // Create Card 
+        cardContainer() {
+            let cardContainer = document.createElement("div")
+            cardContainer.setAttribute("class", "col-md-4")
+
+            return cardContainer
+        },
+
+        cardMain() {
+            let cardMain = document.createElement("div")
+            cardMain.setAttribute("class", "card mb-3")
+
+            return cardMain
+
+        },
+
+
+        cardHeader(taskTile) {
+            let cardHeader = document.createElement("div")
+            cardHeader.setAttribute("class", "card-header")
+
+            let closeButton = `<button type="button" class="close" aria-label="Close">
+        <span aria-hidden="true">&times;</span></button>`
+            let cardTitle = `<h5 class="card-title">${taskTile}</h5>`
+            // let cardID = `<p class="d-none" id="${taskID}"></p>`
+
+
+            cardHeader.innerHTML = closeButton + cardTitle
+
+            return cardHeader
+        },
+
+        cardBody(taskDetails, taskDue) {
+            let cardBody = document.createElement("div")
+            cardBody.setAttribute("class", "card-body")
+
+            let details = `<p class="card-text text-center taskDetails">${taskDetails}</p>`
+            let due = `<p class="card-text text-left dueDate">Due on: ${taskDue}</p>`
+
+            cardBody.innerHTML = details + due
+            return cardBody
+        },
+
+        cardFooter(taskCreated) {
+            let cardFooter = document.createElement("div")
+            cardFooter.setAttribute("class", "card-footer")
+
+            let created = `<small class="text-muted createDate">Created: ${taskCreated}</small>`
+            let buttons = `<div class="btn-group-sm float-right">
+                                    <button class="btn btn-small btn-primary">Edit</button>
+                                    <button class="btn btn-small btn-secondary complete-button">Done</button>
+                                </div>`
+
+            cardFooter.innerHTML = created + buttons
+            return cardFooter
+        },
+
+        createCard(taskArray) {
+            let taskCard = this.cardContainer();
+            let taskMain = this.cardMain();
+
+            let taskHeader = this.cardHeader(taskArray.taskTitle);
+            let taskBody = this.cardBody(taskArray.taskDetails, taskArray.taskDue);
+            let taskFooter = this.cardFooter(taskArray.taskCreated);
+
+            if (taskArray.priority.toLowerCase() === "high") {
+                taskMain.classList.add("border-danger");
+            } else if (taskArray.priority.toLowerCase() === "medium") {
+                taskMain.classList.add("border-warning")
+            };
+
+            let closeAction = taskHeader.querySelector("button");
+            let completeAction = taskFooter.querySelector(".complete-button");
+
+            closeAction.addEventListener("click", () => {
+                taskCard.style.display = 'none'
+            });
+
+
+            completeAction.addEventListener("click", () => {
+                if (taskArray.priority.toLowerCase() === "high") {
+                    taskMain.classList.remove("border-danger");
+                } else if (taskArray.priority.toLowerCase() === "medium") {
+                    taskMain.classList.remove("border-warning")
+                };
+
+                taskMain.classList.add("bg-success", "text-white")
+
+                taskBody.style.textDecoration = "line-through"
+                taskHeader.style.textDecoration = "line-through"
+            });
+
+            taskMain.appendChild(taskHeader);
+            taskMain.appendChild(taskBody);
+            taskMain.appendChild(taskFooter);
+
+            taskCard.appendChild(taskMain);
+
+            return taskCard
+        },
+    };
+
+
+    // simple forloop 
+    basicTasks.forEach(task => {
+        let taskCards = cardFactory.createCard(task)
+        todoContainer.appendChild(taskCards)
+    });
+
+    // Functions to add an item
+
+    const addButton = document.querySelector("#addTask");
+    const addPopup = document.querySelector(".popup-wrapper");
+    const closePopup = document.querySelector(".modal-close");
+    const addTask = document.querySelector(".new-task");
+
+
+    // Show pop up
+    addButton.addEventListener('click', e => {
+        addPopup.style.display = "block";
+    });
+
+    // CLose pop up
+    closePopup.addEventListener("click", e => {
+        addPopup.style.display = "none";
+    });
+
+    // Validate, append and create card for to do
+    addTask.addEventListener('submit', e => {
+        e.preventDefault();
+
+        let formValues = {};
+
+        Object.keys(addTask.elements).forEach(key => {
+            let element = addTask.elements[key];
+            if (element.type !== 'submit') {
+                formValues[element.name] = element.value;
+            };
+        });
+
+        formValues['taskCreated'] = "7/20/2020"
+
+        console.log(formValues)
+
+        // console.log(formValues);
+
+        let taskCards = cardFactory.createCard(formValues)
+        todoContainer.appendChild(taskCards)
+    })
+
+    // Addinga search function
+    // Search
+    const searchInput = document.querySelector("#search-box");
+
+    console.log(searchInput);
+
+    searchInput.addEventListener("keyup", e => {
+        let inputValue = e.target.value.toUpperCase();
+        let card = document.querySelectorAll(".card")
+        let taskDetails = document.querySelector('#todoContainer').querySelectorAll(".taskDetails");
+
+        taskDetails.forEach((element, index) => {
+            let textValue = element.textContent.toUpperCase();
+            if (textValue.indexOf(inputValue) > -1) {
+                card[index].style.display = "";
+            } else {
+                card[index].style.display = "none";
+            }
+        });
+    })
+
+
+</script>
+
+</html>

@@ -1,0 +1,20 @@
+{
+  "name": "hello-express-lambda",
+  "version": "1.0.0",
+  "description": "hello-express-lambda",
+  "main": "index.js",
+  "scripts": {
+    "deploy": "claudia create --handler lambda.handler --deploy-proxy-api --region us-east-1",
+    "update": "claudia update",
+    "generate-proxy": "claudia generate-serverless-express-proxy --express-module app"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "aws-serverless-express": "^3.3.8",
+    "express": "^4.17.1"
+  },
+  "devDependencies": {
+    "claudia": "^5.12.0"
+  }
+}
