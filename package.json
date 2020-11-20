@@ -6,6 +6,7 @@
   "scripts": {
     "deploy": "claudia create --handler lambda.handler --deploy-proxy-api --region us-east-1",
     "update": "claudia update",
+    "test": "claudia test-lambda",
     "generate-proxy": "claudia generate-serverless-express-proxy --express-module app"
   },
   "author": "",

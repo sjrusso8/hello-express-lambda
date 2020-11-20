@@ -1,8 +1,6 @@
+'use strict'
 const express = require('express')
 const app = express();
-
-app.locals.title = process.env.APP_NAME;
-app.locals.version = process.env.APP_VERSION;
 
 /**
  * GET /api .
@@ -16,10 +14,10 @@ app.get('/', (req, res) => {
 
 app.get('/homepage', (req, res) => {
     res.sendFile(`${__dirname}/index.html`)
-})
+});
 
 // app.listen(3000, () => {
 //     console.log(`Example app listening at http://localhost:3000`)
 // })
 
-export default app // export your app so aws-serverless-express can use it
+module.exports = app // export your app so aws-serverless-express can use it
