@@ -4,7 +4,7 @@
   "description": "hello-express-lambda",
   "main": "index.js",
   "scripts": {
-    "deploy": "claudia create --handler lambda.handler --deploy-proxy-api --region us-east-1",
+    "deploy": "claudia create --handler lambda.handler --deploy-proxy-api --region us-east-2",
     "update": "claudia update",
     "test": "claudia test-lambda",
     "generate-proxy": "claudia generate-serverless-express-proxy --express-module app"

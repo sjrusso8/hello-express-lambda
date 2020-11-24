@@ -1,0 +1,10 @@
+{
+  "lambda": {
+    "role": "hello-express-lambda-executor",
+    "name": "hello-express-lambda",
+    "region": "us-east-2"
+  },
+  "api": {
+    "id": "qpisn1zwg9"
+  }
+}
